@@ -35,6 +35,18 @@ class SiteContentSeeder extends Seeder
                 'group' => 'hero',
                 'is_active' => true,
             ],
+            [
+                'key' => 'hero_slider',
+                'value' => json_encode([
+                    'hero-slider-1.jpg',
+                    'hero-slider-2.jpg',
+                    'hero-slider-3.jpg',
+                    'hero-slider-4.jpg'
+                ]),
+                'type' => 'json',
+                'group' => 'hero',
+                'is_active' => true,
+            ],
 
             // About Section
             [
@@ -52,40 +64,29 @@ class SiteContentSeeder extends Seeder
                 'is_active' => true,
             ],
             [
+                'key' => 'about_image',
+                'value' => 'about-section-image.jpg',
+                'type' => 'image',
+                'group' => 'about',
+                'is_active' => true,
+            ],
+            [
                 'key' => 'team_button_text',
                 'value' => 'تعرف على فريقنا',
                 'type' => 'text',
                 'group' => 'about',
                 'is_active' => true,
             ],
-
-            // About Features
             [
-                'key' => 'feature_1',
-                'value' => 'أفضل المواقع الاستراتيجية',
-                'type' => 'text',
-                'group' => 'about_features',
-                'is_active' => true,
-            ],
-            [
-                'key' => 'feature_2',
-                'value' => 'تسهيلات في السداد والتمويل',
-                'type' => 'text',
-                'group' => 'about_features',
-                'is_active' => true,
-            ],
-            [
-                'key' => 'feature_3',
-                'value' => 'دعم قانوني وفني متكامل',
-                'type' => 'text',
-                'group' => 'about_features',
-                'is_active' => true,
-            ],
-            [
-                'key' => 'feature_4',
-                'value' => 'عقارات مسجلة وموثقة',
-                'type' => 'text',
-                'group' => 'about_features',
+                'key' => 'about_features',
+                'value' => json_encode([
+                    ['title' => 'أفضل المواقع الاستراتيجية', 'icon' => 'feature-icon-1.png'],
+                    ['title' => 'تسهيلات في السداد والتمويل', 'icon' => 'feature-icon-2.png'],
+                    ['title' => 'دعم قانوني وفني متكامل', 'icon' => 'feature-icon-3.png'],
+                    ['title' => 'عقارات مسجلة وموثقة', 'icon' => 'feature-icon-4.png'],
+                ]),
+                'type' => 'json',
+                'group' => 'about',
                 'is_active' => true,
             ],
         ];

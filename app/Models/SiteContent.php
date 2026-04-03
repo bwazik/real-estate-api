@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class SiteContent extends Model
 {
@@ -49,19 +51,57 @@ class SiteContent extends Model
     }
 
     /**
-     * Get Hero section content.
+     * Get structured Hero section content.
      */
-    public static function getHeroContent(): Collection
+    public static function getHeroContent(): array
     {
-        return self::getByGroup('hero');
+        $hero = self::getByGroup('hero');
+
+        $sliderImages = collect($hero->get('hero_slider', []))->map(function ($image) {
+            return asset('storage/site/' . $image);
+        })->all();
+
+        return [
+            'title' => $hero->get('hero_title'),
+            'subtitle' => $hero->get('hero_subtitle'),
+            'button_text' => $hero->get('hero_button_text'),
+            'slider_images' => $sliderImages,
+        ];
     }
 
     /**
-     * Get About section content.
+     * Get structured About section content.
      */
-    public static function getAboutContent(): Collection
+    public static function getAboutContent(): array
     {
-        return self::getByGroup('about');
+        $about = self::getByGroup('about');
+
+        return [
+            'title' => $about->get('about_title'),
+            'description' => $about->get('about_description'),
+            'image_url' => $about->get('about_image') 
+                ? asset('storage/site/' . $about->get('about_image')) 
+                : null,
+            'team_button_text' => $about->get('team_button_text'),
+            'features' => $about->get('about_features', []),
+        ];
+    }
+
+    /**
+     * Store single image.
+     */
+    public static function storeImage(string $key, UploadedFile $file): string
+    {
+        $path = $file->store('site', 'public');
+        return basename($path);
+    }
+
+    /**
+     * Store multiple images.
+     */
+    public static function storeMultipleImages(string $key, array $files): array
+    {
+        return array_map(fn ($file) => self::storeImage($key, $file), $files);
     }
 
     /**
