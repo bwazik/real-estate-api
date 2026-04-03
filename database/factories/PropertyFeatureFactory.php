@@ -19,7 +19,7 @@ class PropertyFeatureFactory extends Factory
     {
         return [
             'name' => fake()->unique()->word(),
-            'icon' => fake()->optional()->word(),
+            'icon' => fake()->randomElement(['pool', 'garage', 'elevator', 'garden', 'security', 'ac', 'balcony']),
         ];
     }
 }

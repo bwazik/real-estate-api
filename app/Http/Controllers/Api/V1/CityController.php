@@ -14,7 +14,9 @@ class CityController extends BaseApiController
      */
     public function index(): JsonResponse
     {
-        $cities = Cache::remember('cities', 3600, function () {
+        $cache = Cache::supportsTags() ? Cache::tags(['static_data']) : Cache::getFacadeRoot();
+
+        $cities = $cache->remember('cities', 3600, function () {
             return City::all();
         });
 

@@ -3,23 +3,35 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        DB::transaction(function () {
+            // Create Admin User
+            User::factory()->create([
+                'name' => 'Admin User',
+                'email' => 'admin@flomax.com',
+                'password' => Hash::make('password'),
+                'is_admin' => true,
+            ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+            // Call Seeders
+            $this->call([
+                PropertyTypeSeeder::class,
+                CitySeeder::class,
+                AreaSeeder::class,
+                PropertyFeatureSeeder::class,
+                PropertySeeder::class,
+                SiteContentSeeder::class,
+            ]);
+        });
     }
 }

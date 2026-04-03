@@ -16,6 +16,14 @@ class Area extends Model
     use HasFactory;
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * Get the city that owns the area.
      */
     public function city(): BelongsTo

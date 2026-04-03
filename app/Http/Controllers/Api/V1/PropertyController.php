@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\PropertyFilterRequest;
 use App\Http\Requests\Api\V1\StorePropertyRequest;
 use App\Http\Requests\Api\V1\UpdatePropertyRequest;
 use App\Http\Resources\Api\V1\PropertyCollection;
 use App\Http\Resources\Api\V1\PropertyResource;
 use App\Models\Property;
-use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,7 +20,16 @@ class PropertyController extends BaseApiController
     public function index(PropertyFilterRequest $request): JsonResponse
     {
         $properties = Property::query()
-            ->with(['propertyType', 'area.city', 'images' => fn($q) => $q->where('is_main', true)])
+            ->select([
+                'id', 'slug', 'title', 'purpose', 'price', 'bedrooms', 'bathrooms', 
+                'area_size', 'is_furnished', 'status', 'property_type_id', 'area_id', 'created_at'
+            ])
+            ->with([
+                'propertyType:id,name,slug',
+                'area:id,name,slug,city_id',
+                'area.city:id,name,slug',
+                'images' => fn ($q) => $q->select(['id', 'property_id', 'image_path', 'is_main'])->where('is_main', true)
+            ])
             ->filter($request->validated())
             ->paginate($request->integer('per_page', 15));
 
@@ -38,7 +45,7 @@ class PropertyController extends BaseApiController
             return DB::transaction(function () use ($request) {
                 $data = $request->validated();
                 $data['user_id'] = $request->user()->id;
-                $data['slug'] = Str::slug($data['title']) . '-' . Str::random(5);
+                $data['slug'] = Str::slug($data['title']).'-'.Str::random(5);
 
                 $property = Property::create($data);
 
@@ -61,25 +68,16 @@ class PropertyController extends BaseApiController
                 );
             });
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to create property: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Failed to create property: '.$e->getMessage(), 500);
         }
     }
 
     /**
      * Display the specified property.
      */
-    public function show(string $idOrSlug): JsonResponse
+    public function show(Property $property): JsonResponse
     {
-        $property = Property::query()
-            ->with(['propertyType', 'area.city', 'user', 'features', 'images', 'contacts'])
-            ->where('id', $idOrSlug)
-            ->orWhere('slug', $idOrSlug)
-            ->first();
-
-        if (! $property) {
-            return $this->errorResponse('Property not found.', 404);
-        }
-
+        $property->load(['propertyType', 'area.city', 'user', 'features', 'images', 'contacts']);
         $property->increment('views_count');
 
         return $this->successResponse(new PropertyResource($property), 'Property retrieved successfully.');
@@ -95,7 +93,7 @@ class PropertyController extends BaseApiController
                 $data = $request->validated();
 
                 if ($request->has('title')) {
-                    $data['slug'] = Str::slug($data['title']) . '-' . Str::random(5);
+                    $data['slug'] = Str::slug($data['title']).'-'.Str::random(5);
                 }
 
                 $property->update($data);
@@ -121,7 +119,7 @@ class PropertyController extends BaseApiController
                 );
             });
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to update property: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Failed to update property: '.$e->getMessage(), 500);
         }
     }
 
@@ -132,6 +130,7 @@ class PropertyController extends BaseApiController
     {
         try {
             $property->delete();
+
             return $this->successResponse(null, 'Property deleted successfully.');
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to delete property.', 500);

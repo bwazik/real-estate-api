@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\Api\V1\LoginRequest;
 use App\Http\Requests\Api\V1\RegisterRequest;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class AuthController extends BaseApiController
         $token = $user->createToken('main')->plainTextToken;
 
         return $this->successResponse([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token,
         ], 'User registered successfully', 201);
     }
@@ -52,7 +53,7 @@ class AuthController extends BaseApiController
         $token = $user->createToken('main')->plainTextToken;
 
         return $this->successResponse([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token,
         ], 'Authenticated successfully');
     }

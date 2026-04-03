@@ -2,18 +2,8 @@
 
 namespace App\Http\Requests\Api\V1;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class PropertyFilterRequest extends FormRequest
+class PropertyFilterRequest extends ApiRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,9 +13,9 @@ class PropertyFilterRequest extends FormRequest
     {
         return [
             'search' => ['nullable', 'string', 'max:255'],
-            'property_type_id' => ['nullable', 'exists:property_types,id'],
-            'city_id' => ['nullable', 'exists:cities,id'],
-            'area_id' => ['nullable', 'exists:areas,id'],
+            'property_type_slug' => ['nullable', 'string', 'exists:property_types,slug'],
+            'city_slug' => ['nullable', 'string', 'exists:cities,slug'],
+            'area_slug' => ['nullable', 'string', 'exists:areas,slug'],
             'min_price' => ['nullable', 'numeric', 'min:0'],
             'max_price' => ['nullable', 'numeric', 'min:0'],
             'min_bedrooms' => ['nullable', 'integer', 'min:0'],
@@ -35,7 +25,7 @@ class PropertyFilterRequest extends FormRequest
             'status' => ['nullable', 'string', 'in:available,sold,rented'],
             'is_furnished' => ['nullable', 'boolean'],
             'sort' => ['nullable', 'string', 'in:price_asc,price_desc,newest,oldest,area_size'],
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ];
     }
 }

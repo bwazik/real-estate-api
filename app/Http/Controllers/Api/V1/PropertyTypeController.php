@@ -14,7 +14,9 @@ class PropertyTypeController extends BaseApiController
      */
     public function index(): JsonResponse
     {
-        $types = Cache::remember('property_types', 3600, function () {
+        $cache = Cache::supportsTags() ? Cache::tags(['static_data']) : Cache::getFacadeRoot();
+
+        $types = $cache->remember('property_types', 3600, function () {
             return PropertyType::all();
         });
 

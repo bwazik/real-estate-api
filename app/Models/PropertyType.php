@@ -15,6 +15,14 @@ class PropertyType extends Model
     use HasFactory;
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * Get the properties for the property type.
      */
     public function properties(): HasMany

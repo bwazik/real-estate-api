@@ -16,6 +16,14 @@ class City extends Model
     use HasFactory;
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * Get the areas for the city.
      */
     public function areas(): HasMany

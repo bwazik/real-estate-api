@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePropertyRequest extends FormRequest
@@ -17,7 +18,7 @@ class UpdatePropertyRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -25,15 +26,16 @@ class UpdatePropertyRequest extends FormRequest
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'string'],
             'price' => ['sometimes', 'numeric', 'min:0'],
+            'purpose' => ['sometimes', 'string', 'in:sale,rent,investment'],
             'property_type_id' => ['sometimes', 'exists:property_types,id'],
             'area_id' => ['sometimes', 'exists:areas,id'],
             'bedrooms' => ['sometimes', 'integer', 'min:0'],
             'bathrooms' => ['sometimes', 'numeric', 'min:0'],
             'area_size' => ['sometimes', 'numeric', 'min:0'],
             'floor_number' => ['nullable', 'integer'],
-            'year_built' => ['nullable', 'integer', 'min:1900', 'max:' . (date('Y') + 1)],
+            'year_built' => ['nullable', 'integer', 'min:1900', 'max:'.(date('Y') + 1)],
             'is_furnished' => ['sometimes', 'boolean'],
-            'status' => ['sometimes', 'string', 'in:available,sold,rented'],
+            'status' => ['sometimes', 'integer', 'in:0,1,2,3,4'],
             'latitude' => ['nullable', 'numeric'],
             'longitude' => ['nullable', 'numeric'],
             'features' => ['nullable', 'array'],

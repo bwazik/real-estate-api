@@ -15,7 +15,9 @@ class AreaController extends BaseApiController
      */
     public function index(): JsonResponse
     {
-        $areas = Cache::remember('areas', 3600, function () {
+        $cache = Cache::supportsTags() ? Cache::tags(['static_data']) : Cache::getFacadeRoot();
+
+        $areas = $cache->remember('areas', 3600, function () {
             return Area::all();
         });
 
@@ -30,8 +32,10 @@ class AreaController extends BaseApiController
      */
     public function cityAreas(City $city): JsonResponse
     {
-        $areas = Cache::remember("city_{$city->id}_areas", 3600, function () use ($city) {
-            return $city->areas;
+        $cache = Cache::supportsTags() ? Cache::tags(['static_data']) : Cache::getFacadeRoot();
+
+        $areas = $cache->remember("city_{$city->slug}_areas", 3600, function () use ($city) {
+            return $city->areas()->with('city')->get();
         });
 
         return $this->successResponse(

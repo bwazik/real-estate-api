@@ -14,7 +14,9 @@ class PropertyFeatureController extends BaseApiController
      */
     public function index(): JsonResponse
     {
-        $features = Cache::remember('property_features', 3600, function () {
+        $cache = Cache::supportsTags() ? Cache::tags(['static_data']) : Cache::getFacadeRoot();
+
+        $features = $cache->remember('property_features', 3600, function () {
             return PropertyFeature::all();
         });
 

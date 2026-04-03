@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\PropertyPurpose;
+use App\Enums\PropertyStatus;
 use Database\Factories\PropertyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,13 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'title',
-    'slug',
     'description',
     'price',
+    'purpose',
     'property_type_id',
     'area_id',
     'bedrooms',
@@ -28,13 +31,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'status',
     'latitude',
     'longitude',
-    'views_count',
     'user_id',
 ])]
 class Property extends Model
 {
     /** @use HasFactory<PropertyFactory> */
     use HasFactory, SoftDeletes;
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -54,23 +64,17 @@ class Property extends Model
             'floor_number' => 'integer',
             'year_built' => 'integer',
             'views_count' => 'integer',
+            'purpose' => PropertyPurpose::class,
+            'status' => PropertyStatus::class,
         ];
     }
 
     /**
-     * Scope a query to only include active/available properties.
+     * Scope a query to only include available properties.
      */
     public function scopeAvailable(Builder $query): Builder
     {
-        return $query->where('status', 'available');
-    }
-
-    /**
-     * Scope a query to only include active properties (alias for available).
-     */
-    public function scopeActive(Builder $query): Builder
-    {
-        return $this->scopeAvailable($query);
+        return $query->where('status', PropertyStatus::Available);
     }
 
     /**
@@ -83,14 +87,20 @@ class Property extends Model
                 $query->where('title', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
             });
-        })->when($filters['property_type_id'] ?? null, function (Builder $query, $typeId) {
-            $query->where('property_type_id', $typeId);
-        })->when($filters['city_id'] ?? null, function (Builder $query, $cityId) {
-            $query->whereHas('area', function (Builder $query) use ($cityId) {
-                $query->where('city_id', $cityId);
+        })->when($filters['property_type_slug'] ?? null, function (Builder $query, $typeSlug) {
+            $query->whereHas('propertyType', function (Builder $query) use ($typeSlug) {
+                $query->where('slug', $typeSlug);
             });
-        })->when($filters['area_id'] ?? null, function (Builder $query, $areaId) {
-            $query->where('area_id', $areaId);
+        })->when($filters['purpose'] ?? null, function (Builder $query, $purpose) {
+            $query->where('purpose', $purpose);
+        })->when($filters['city_slug'] ?? null, function (Builder $query, $citySlug) {
+            $query->whereHas('area.city', function (Builder $query) use ($citySlug) {
+                $query->where('slug', $citySlug);
+            });
+        })->when($filters['area_slug'] ?? null, function (Builder $query, $areaSlug) {
+            $query->whereHas('area', function (Builder $query) use ($areaSlug) {
+                $query->where('slug', $areaSlug);
+            });
         })->when($filters['min_price'] ?? null, function (Builder $query, $minPrice) {
             $query->where('price', '>=', $minPrice);
         })->when($filters['max_price'] ?? null, function (Builder $query, $maxPrice) {
@@ -172,7 +182,7 @@ class Property extends Model
     /**
      * Get the main image of the property.
      */
-    public function mainImage(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function mainImage(): HasOne
     {
         return $this->hasOne(PropertyImage::class)->where('is_main', true);
     }

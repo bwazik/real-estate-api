@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\PropertyType;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<PropertyType>
@@ -17,11 +18,10 @@ class PropertyTypeFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->unique()->randomElement(['Apartment', 'Villa', 'Duplex', 'Chalet', 'Studio', 'Townhouse']);
-
+        $name = fake()->unique()->word();
         return [
             'name' => $name,
-            'slug' => \Illuminate\Support\Str::slug($name),
+            'slug' => Str::slug($name),
             'description' => fake()->sentence(),
         ];
     }

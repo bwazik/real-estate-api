@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Property;
 use App\Models\PropertyContact;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,12 +18,13 @@ class PropertyContactFactory extends Factory
      */
     public function definition(): array
     {
+        $phone = fake()->phoneNumber();
         return [
-            'property_id' => \App\Models\Property::factory(),
-            'phone' => fake()->phoneNumber(),
-            'whatsapp' => fake()->optional(0.7)->phoneNumber(),
-            'is_whatsapp' => fake()->boolean(70),
-            'label' => fake()->randomElement(['Agent', 'Owner', 'Agency', 'Assistant']),
+            'property_id' => Property::factory(),
+            'phone' => $phone,
+            'whatsapp' => $phone,
+            'is_whatsapp' => true,
+            'label' => fake()->randomElement(['Sales Agent', 'Owner', 'Office']),
         ];
     }
 }
