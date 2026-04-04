@@ -1,0 +1,25 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\PropertyFeature;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<PropertyFeature>
+ */
+class PropertyFeatureFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->unique()->word(),
+            'icon' => fake()->randomElement(['pool', 'garage', 'elevator', 'garden', 'security', 'ac', 'balcony']),
+        ];
+    }
+}
