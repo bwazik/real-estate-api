@@ -18,6 +18,7 @@ class AreaResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->resource->id,
             'slug' => $this->resource->slug,
             'name' => $this->resource->name,
             'city' => new CityResource($this->whenLoaded('city')),
