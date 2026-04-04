@@ -27,7 +27,7 @@ class StorePropertyImageRequest extends FormRequest
                 'required',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:5120', // 5MB
+                'max:20480', // 20MB
             ],
         ];
     }
@@ -44,7 +44,7 @@ class StorePropertyImageRequest extends FormRequest
             'images.max' => 'You cannot upload more than 10 images at once.',
             'images.*.image' => 'Each file must be an image.',
             'images.*.mimes' => 'Only JPG, JPEG, PNG, and WEBP formats are allowed.',
-            'images.*.max' => 'Each image must not exceed 5MB.',
+            'images.*.max' => 'Each image must not exceed 20MB.',
         ];
     }
 }
