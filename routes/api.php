@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AreaController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CityController;
+use App\Http\Controllers\Api\V1\ComplaintController;
 use App\Http\Controllers\Api\V1\PropertyContactController;
 use App\Http\Controllers\Api\V1\PropertyController;
 use App\Http\Controllers\Api\V1\PropertyFeatureController;
@@ -18,6 +19,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     // Public Routes
     Route::post('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
 
     // Public Supporting Routes (Dropdowns/Filters) with 120 requests/min throttle
     Route::middleware('throttle:api')->group(function () {
@@ -59,6 +61,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::post('/properties/{property:slug}/contacts', [PropertyContactController::class, 'store'])->name('properties.contacts.store');
             Route::put('/properties/{property:slug}/contacts/{contact:uuid}', [PropertyContactController::class, 'update'])->name('properties.contacts.update');
             Route::delete('/properties/{property:slug}/contacts/{contact:uuid}', [PropertyContactController::class, 'destroy'])->name('properties.contacts.destroy');
+
+            // Complaints
+            Route::get('/complaints', [ComplaintController::class, 'index'])->name('complaints.index');
+            Route::get('/complaints/{complaint:uuid}', [ComplaintController::class, 'show'])->name('complaints.show');
+            Route::put('/complaints/{complaint:uuid}/status', [ComplaintController::class, 'updateStatus'])->name('complaints.status');
+            Route::put('/complaints/{complaint:uuid}/read', [ComplaintController::class, 'markAsRead'])->name('complaints.read');
         });
     });
 });

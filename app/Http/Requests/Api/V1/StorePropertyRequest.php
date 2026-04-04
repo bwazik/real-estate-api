@@ -40,11 +40,6 @@ class StorePropertyRequest extends FormRequest
             'longitude' => ['nullable', 'numeric'],
             'features' => ['nullable', 'array'],
             'features.*' => ['exists:property_features,id'],
-            // Images and contacts handling could be complex, but for now we define basic rules
-            'images' => ['nullable', 'array'],
-            'images.*.image_path' => ['required', 'string'],
-            'images.*.is_main' => ['required', 'boolean'],
-            'images.*.order' => ['required', 'integer'],
             'contacts' => ['nullable', 'array'],
             'contacts.*.phone' => ['required', 'string'],
             'contacts.*.whatsapp' => ['nullable', 'string'],
