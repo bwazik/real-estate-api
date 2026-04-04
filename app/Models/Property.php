@@ -14,9 +14,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str; // 👈 تم إضافة هذا السطر
 
 #[Fillable([
     'title',
+    'slug', // 👈 تم إضافة الـ slug هنا
     'description',
     'price',
     'purpose',
@@ -37,6 +39,21 @@ class Property extends Model
 {
     /** @use HasFactory<PropertyFactory> */
     use HasFactory, SoftDeletes;
+
+    /**
+     * وظيفة توليد الـ slug تلقائياً عند إنشاء العقار
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($property) {
+            if (empty($property->slug)) {
+                // توليد slug من العنوان مع إضافة كود عشوائي لضمان عدم التكرار
+                $property->slug = Str::slug($property->title) . '-' . Str::random(6);
+            }
+        });
+    }
 
     /**
      * Get the route key for the model.
