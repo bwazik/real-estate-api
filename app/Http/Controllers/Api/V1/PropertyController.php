@@ -21,14 +21,14 @@ class PropertyController extends BaseApiController
     {
         $properties = Property::query()
             ->select([
-                'id', 'slug', 'title', 'purpose', 'price', 'bedrooms', 'bathrooms', 
-                'area_size', 'is_furnished', 'status', 'property_type_id', 'area_id', 'created_at'
+                'id', 'slug', 'title', 'purpose', 'price', 'bedrooms', 'bathrooms',
+                'area_size', 'is_furnished', 'status', 'property_type_id', 'area_id', 'created_at',
             ])
             ->with([
                 'propertyType:id,name,slug',
                 'area:id,name,slug,city_id',
                 'area.city:id,name,slug',
-                'images' => fn ($q) => $q->select(['id', 'property_id', 'image_path', 'is_main'])->where('is_main', true)
+                'images' => fn ($q) => $q->select(['id', 'property_id', 'image_path', 'is_main'])->where('is_main', true),
             ])
             ->filter($request->validated())
             ->paginate($request->integer('per_page', 15));
@@ -51,10 +51,6 @@ class PropertyController extends BaseApiController
 
                 if ($request->has('features')) {
                     $property->features()->sync($request->features);
-                }
-
-                if ($request->has('images')) {
-                    $property->images()->createMany($request->images);
                 }
 
                 if ($request->has('contacts')) {
@@ -90,24 +86,19 @@ class PropertyController extends BaseApiController
     {
         try {
             return DB::transaction(function () use ($request, $property) {
+                // Update basic property data
                 $data = $request->validated();
-
                 if ($request->has('title')) {
-                    $data['slug'] = Str::slug($data['title']).'-'.Str::random(5);
+                    $data['slug'] = Str::slug($data['title']) . '-' . Str::random(5);
                 }
-
                 $property->update($data);
 
+                // Sync features if provided
                 if ($request->has('features')) {
                     $property->features()->sync($request->features);
                 }
 
-                if ($request->has('images')) {
-                    // Simple replacement logic for demo; in production, consider more surgical updates
-                    $property->images()->delete();
-                    $property->images()->createMany($request->images);
-                }
-
+                // Update contacts if provided
                 if ($request->has('contacts')) {
                     $property->contacts()->delete();
                     $property->contacts()->createMany($request->contacts);
@@ -119,7 +110,7 @@ class PropertyController extends BaseApiController
                 );
             });
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to update property: '.$e->getMessage(), 500);
+            return $this->errorResponse('Failed to update property: ' . $e->getMessage(), 500);
         }
     }
 
