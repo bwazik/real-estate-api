@@ -1,0 +1,52 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('property_features', function (Blueprint $table) {
+            $table->uuid('uuid')->after('id')->unique()->nullable();
+        });
+
+        Schema::table('property_images', function (Blueprint $table) {
+            $table->uuid('uuid')->after('id')->unique()->nullable();
+        });
+
+        Schema::table('property_contacts', function (Blueprint $table) {
+            $table->uuid('uuid')->after('id')->unique()->nullable();
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->uuid('uuid')->after('id')->unique()->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('property_features', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('property_images', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('property_contacts', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+    }
+};
