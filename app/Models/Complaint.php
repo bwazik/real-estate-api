@@ -23,6 +23,11 @@ class Complaint extends Model
         'read_at',
     ];
 
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
     protected function casts(): array
     {
         return [

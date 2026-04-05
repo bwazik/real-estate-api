@@ -35,10 +35,16 @@ class PropertyImageController extends BaseApiController
                     ];
                 }
 
-                $property->images()->insert($images);
+                foreach ($images as $imageData) {
+                    $property->images()->create([
+                        'image_path' => $imageData['image_path'],
+                        'is_main' => $imageData['is_main'],
+                        'order' => $imageData['order'],
+                    ]);
+                }
 
                 // If no main image exists, set the first uploaded one as main
-                if (! $property->images()->where('is_main', true)->exists()) {
+                if (!$property->images()->where('is_main', true)->exists()) {
                     $property->images()->first()->update(['is_main' => true]);
                 }
 
