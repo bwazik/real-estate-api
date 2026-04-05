@@ -27,7 +27,7 @@ class StorePropertyImageRequest extends FormRequest
                 'required',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:20480', // 20MB
+                'max:10240', // 10MB
             ],
         ];
     }
