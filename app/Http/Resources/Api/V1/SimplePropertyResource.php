@@ -31,7 +31,9 @@ class SimplePropertyResource extends JsonResource
             'type' => $this->resource->propertyType->name ?? null,
             'area' => $this->resource->area->name ?? null,
             'city' => $this->resource->area->city->name ?? null,
-            'main_image' => $this->resource->images->where('is_main', true)->first()->image_path ?? $this->resource->images->first()->image_path ?? null,
+            'main_image' => $this->resource->images->isNotEmpty()
+                ? asset('storage/' . ($this->resource->images->where('is_main', true)->first()->image_path ?? $this->resource->images->first()->image_path))
+                : null,
             'created_at' => $this->resource->created_at?->format('Y-m-d H:i:s'),
         ];
     }
