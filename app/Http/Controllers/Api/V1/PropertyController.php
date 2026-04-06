@@ -45,7 +45,7 @@ class PropertyController extends BaseApiController
     {
         try {
             return DB::transaction(function () use ($request) {
-                $data = $request->validated();
+                $data = $this->normalizeNullablePropertyInputs($request->validated());
                 $nameSource = $data['property_name'] ?? $data['title'] ?? null;
 
                 if ($nameSource === null) {
@@ -96,7 +96,7 @@ class PropertyController extends BaseApiController
     {
         try {
             return DB::transaction(function () use ($request, $property) {
-                $data = $request->validated();
+                $data = $this->normalizeNullablePropertyInputs($request->validated());
 
                 if ($request->has('property_name')) {
                     $data['title'] = $data['property_name'];
@@ -139,5 +139,57 @@ class PropertyController extends BaseApiController
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to delete property.', 500);
         }
+    }
+
+    /**
+     * Normalize nullable numeric/boolean property fields to DB-safe defaults.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizeNullablePropertyInputs(array $data): array
+    {
+        $zeroIntegerFields = [
+            'facades_count',
+            'apartments_count',
+            'living_rooms_count',
+            'kitchens_count',
+            'parking_spaces',
+            'warehouses_count',
+            'entrances_count',
+            'annexes_count',
+        ];
+
+        $zeroDecimalFields = [
+            'income',
+            'highest_bid',
+            'brokerage_fee',
+            'insurance_amount',
+        ];
+
+        $falseBooleanFields = [
+            'has_maids_room',
+            'has_drivers_room',
+        ];
+
+        foreach ($zeroIntegerFields as $field) {
+            if (array_key_exists($field, $data) && $data[$field] === null) {
+                $data[$field] = 0;
+            }
+        }
+
+        foreach ($zeroDecimalFields as $field) {
+            if (array_key_exists($field, $data) && $data[$field] === null) {
+                $data[$field] = 0;
+            }
+        }
+
+        foreach ($falseBooleanFields as $field) {
+            if (array_key_exists($field, $data) && $data[$field] === null) {
+                $data[$field] = false;
+            }
+        }
+
+        return $data;
     }
 }
