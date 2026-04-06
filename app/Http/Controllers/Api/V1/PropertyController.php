@@ -21,8 +21,10 @@ class PropertyController extends BaseApiController
     {
         $properties = Property::query()
             ->select([
-                'id', 'slug', 'title', 'purpose', 'price', 'bedrooms', 'bathrooms',
-                'area_size', 'is_furnished', 'status', 'property_type_id', 'area_id', 'created_at',
+                'id', 'slug', 'property_name', 'listing_status', 'property_category', 'offer_type',
+                'price', 'city_name', 'district_name', 'ad_date', 'created_at',
+                'purpose', 'status', 'property_type_id', 'area_id',
+                'title', 'bedrooms', 'bathrooms', 'area_size', 'is_furnished',
             ])
             ->with([
                 'propertyType:id,name,slug',
@@ -44,8 +46,16 @@ class PropertyController extends BaseApiController
         try {
             return DB::transaction(function () use ($request) {
                 $data = $request->validated();
+                $nameSource = $data['property_name'] ?? $data['title'] ?? null;
+
+                if ($nameSource === null) {
+                    return $this->errorResponse('Property name is required.', 422);
+                }
+
+                $data['property_name'] = $nameSource;
                 $data['user_id'] = $request->user()->id;
-                $data['slug'] = Str::slug($data['title']).'-'.Str::random(5);
+                $data['title'] = $nameSource;
+                $data['slug'] = Str::slug($nameSource).'-'.Str::random(5);
 
                 $property = Property::create($data);
 
@@ -86,19 +96,22 @@ class PropertyController extends BaseApiController
     {
         try {
             return DB::transaction(function () use ($request, $property) {
-                // Update basic property data
                 $data = $request->validated();
-                if ($request->has('title')) {
-                    $data['slug'] = Str::slug($data['title']) . '-' . Str::random(5);
+
+                if ($request->has('property_name')) {
+                    $data['title'] = $data['property_name'];
+                    $data['slug'] = Str::slug($data['property_name']).'-'.Str::random(5);
+                } elseif ($request->has('title') && ! empty($data['title'])) {
+                    $data['property_name'] = $data['title'];
+                    $data['slug'] = Str::slug($data['title']).'-'.Str::random(5);
                 }
+
                 $property->update($data);
 
-                // Sync features if provided
                 if ($request->has('features')) {
                     $property->features()->sync($request->features);
                 }
 
-                // Update contacts if provided
                 if ($request->has('contacts')) {
                     $property->contacts()->delete();
                     $property->contacts()->createMany($request->contacts);
